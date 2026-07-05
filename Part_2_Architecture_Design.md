@@ -176,6 +176,48 @@ Primary pattern:
 - parse workflow metadata structures
 - detect both criteria usage and field update usage
 
+## API Usage Model
+
+Part 2 uses both REST and SOAP, but for different metadata retrieval needs.
+
+### REST usage
+
+REST is used for Tooling API driven dependency analysis through `ToolingApiRestClient`.
+
+This supports the query-first path for categories where Salesforce metadata dependencies can be retrieved efficiently from Tooling API, such as:
+
+- Apex
+- Flow
+- Validation Rule
+- Custom Field
+- Layout
+- Email Template
+- FlexiPage inventory/detail retrieval
+- Workflow metadata record retrieval
+
+At a high level, REST is used where the platform exposes metadata records or dependency rows in a queryable way.
+
+### SOAP usage
+
+SOAP is used in `ReportTypeMetadataClient` to call the Metadata API for `ReportType` analysis.
+
+This path is used because report type column exposure is metadata-structure driven and is better retrieved from Metadata API operations than from the standard dependency-query path.
+
+At a high level, SOAP is used for:
+
+- listing report type metadata full names
+- reading report type metadata in batches
+- parsing report type sections and field references
+
+### Why both are present
+
+The split is intentional:
+
+- REST is the faster and simpler fit for queryable Tooling metadata and dependency graphs
+- SOAP is used only where Metadata API is the better source of truth, specifically for report type structure
+
+This keeps the implementation practical while still using the most appropriate Salesforce API for each metadata family.
+
 ## UI Design Summary
 
 The LWC is intentionally not just a raw form plus flat list. The output is grouped to improve scanability when multiple fields and categories are analyzed together.
