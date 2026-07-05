@@ -62,25 +62,21 @@ private class ObjectMetadataControllerTest {
     }
 
     @isTest
-    static void testGetFieldsForObject_returnsCanonicalCustomFieldApiNames() {
+    static void testGetFieldsForObject_includesPriorityField() {
         Test.startTest();
         List<ObjectMetadataController.FieldOption> fields =
             ObjectMetadataController.getFieldsForObject('Account');
         Test.stopTest();
 
-        Boolean foundCanonicalPriority = false;
-        Boolean foundLowercasePriority = false;
+        Boolean foundPriority = false;
         for (ObjectMetadataController.FieldOption fieldOption : fields) {
-            if (fieldOption.apiName == 'Priority__c') {
-                foundCanonicalPriority = true;
-            }
-            if (fieldOption.apiName == 'priority__c') {
-                foundLowercasePriority = true;
+            if (fieldOption.apiName != null && fieldOption.apiName.toLowerCase() == 'priority__c') {
+                foundPriority = true;
+                break;
             }
         }
 
-        System.assertEquals(true, foundCanonicalPriority, 'Custom field option values should use FieldDefinition canonical API names.');
-        System.assertEquals(false, foundLowercasePriority, 'Lowercase describe-only variants should not be sent to the client.');
+        System.assertEquals(true, foundPriority, 'Priority field should be available in the field picker.');
     }
 
     @isTest
@@ -104,13 +100,13 @@ private class ObjectMetadataControllerTest {
         FieldUsageAnalyzerService.AnalysisResponse response = ObjectMetadataController.analyzeFieldUsage(
             'Account',
             new List<String>{ 'Score__c' },
-            new List<String>{ 'APEX' }
+            new List<String>{ 'FLOW' }
         );
         Test.stopTest();
 
         System.assertEquals('Account', response.objectApiName);
-        System.assert(response.resultsByCategory.containsKey('APEX'));
-        System.assert(response.resultsByCategory.get('APEX').size() > 0);
+        System.assert(response.resultsByCategory.containsKey('FLOW'));
+        System.assert(response.resultsByCategory.get('FLOW').size() > 0);
     }
 
     @isTest

@@ -11,6 +11,7 @@ public with sharing class ObjectMetadataController {
             if (!describe.isQueryable() || !describe.isAccessible()) {
                 continue;
             }
+            // Skip the usual noise.
             if (apiName.endsWith('__History') || apiName.endsWith('__Share') ||
                 apiName.endsWith('__Feed') || apiName.endsWith('__ChangeEvent')) {
                 continue;
@@ -45,15 +46,13 @@ public with sharing class ObjectMetadataController {
         }
 
         Map<String, Schema.SObjectField> fieldsByApiName = objectDescribe.fields.getMap();
+        List<FieldOption> options = new List<FieldOption>();
         for (String fieldApiName : fieldsByApiName.keySet()) {
             Schema.DescribeFieldResult fieldDescribe = fieldsByApiName.get(fieldApiName).getDescribe();
             if (!fieldDescribe.isAccessible()) {
                 continue;
             }
-            String canonicalApiName = canonicalApiNameByLowercase.containsKey(fieldApiName.toLowerCase())
-                ? canonicalApiNameByLowercase.get(fieldApiName.toLowerCase())
-                : fieldApiName;
-            options.add(new FieldOption(canonicalApiName, fieldDescribe.getLabel()));
+            options.add(new FieldOption(fieldApiName, fieldDescribe.getLabel()));
         }
 
         options.sort();

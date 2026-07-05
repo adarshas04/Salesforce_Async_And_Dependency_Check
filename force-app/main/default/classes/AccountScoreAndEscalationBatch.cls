@@ -85,7 +85,6 @@ public with sharing class AccountScoreAndEscalationBatch implements Database.Bat
 
         if (totalErrors > 0) {
             System.debug(LoggingLevel.WARN, 'Sample errors: ' + errorMessages[0]);
-            // We can log on a custom object/use nebula if present - for error logs/choose a notification method as well.
         }
     }
 

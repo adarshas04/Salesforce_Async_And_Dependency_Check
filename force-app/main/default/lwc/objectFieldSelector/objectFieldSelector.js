@@ -18,6 +18,7 @@ export default class ObjectFieldSelector extends LightningElement {
     @track groupedResults = [];
     @track categoryErrors = [];
     @track loadingStatusMessage = '';
+    analyzedFieldApiNames = [];
     isLoading = false;
     hasAnalyzed = false;
     loadingMessageIndex = 0;
@@ -120,6 +121,7 @@ export default class ObjectFieldSelector extends LightningElement {
         this.resultRows = [];
         this.groupedResults = [];
         this.categoryErrors = [];
+        this.analyzedFieldApiNames = [];
         this.startLoadingNarration();
 
         try {
@@ -139,6 +141,7 @@ export default class ObjectFieldSelector extends LightningElement {
                     });
                 });
             });
+            this.analyzedFieldApiNames = response.fieldApiNames || [...this.selectedFieldApiNames];
             this.resultRows = rows;
             this.groupedResults = this.buildGroupedResults(rows);
 
@@ -243,7 +246,11 @@ export default class ObjectFieldSelector extends LightningElement {
             });
         });
 
-        return this.selectedFieldApiNames
+        const fieldApiNamesToRender = this.analyzedFieldApiNames.length > 0
+            ? this.analyzedFieldApiNames
+            : this.selectedFieldApiNames;
+
+        return fieldApiNamesToRender
             .filter((fieldApiName) => fieldMap.has(fieldApiName))
             .map((fieldApiName) => {
                 const fieldGroup = fieldMap.get(fieldApiName);
