@@ -267,13 +267,7 @@ This is the right behavior for an analysis tool. Users get partial value instead
 
 The easiest extension path is to add a new provider and register a new category definition.
 
-Typical future additions could include:
-
-- Formula field cross-object analysis
-- Approval Process usage
-- Assignment Rules
-- Compact Layouts
-- Permission-set driven field exposure views
+Future enahncements could include the metadata families that are currently using heuristic scanning rather than a guaranteed dependency graph.
 
 The current provider registry pattern supports this without requiring a redesign.
 
@@ -285,8 +279,8 @@ At a high level, the current implementation still has a few natural limits:
 - some metadata families still require heuristic scanning rather than a guaranteed dependency graph
 - FlexiPage and workflow scanning are more expensive than dependency-query categories
 - there is no caching layer yet for repeated analysis of the same object/field set
+- the SOAP calls are heavy and time consuming - introducing a caching layer or maybe maintinaing a dependency graph in the system would help for scaling as in a real org - the report dependencies are much higher and the current solution might not sustain without an Async job.
 
-These are reasonable boundaries for an assignment solution and do not undermine the overall design.
 
 ## Conclusion
 
