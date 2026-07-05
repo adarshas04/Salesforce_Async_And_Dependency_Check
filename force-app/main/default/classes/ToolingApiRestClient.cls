@@ -1,13 +1,3 @@
-/**
- * ToolingApiRestClient
- * --------------------
- * Named Credential-backed Tooling REST client used by dependency providers.
- *
- * This client intentionally does not rely on UserInfo.getSessionId() because
- * Lightning/Aura/LWC sessions are often invalid for direct REST API use from
- * Apex callouts. Instead, Apex calls a Named Credential that authenticates
- * back into the same org and can safely reach Tooling REST endpoints.
- */
 public with sharing class ToolingApiRestClient {
 
     @TestVisible
@@ -15,10 +5,6 @@ public with sharing class ToolingApiRestClient {
     private static final String API_VERSION = '60.0';
     private static final Integer TIMEOUT_MS = 30000;
 
-    /**
-     * Executes a Tooling REST SOQL query and returns the deserialized
-     * records array as List<Object>. Handles server-side pagination.
-     */
     public static List<Object> query(String toolingSoql) {
         RestQueryResult page = executeGet(
             '/services/data/v' + API_VERSION + '/tooling/query?q=' +

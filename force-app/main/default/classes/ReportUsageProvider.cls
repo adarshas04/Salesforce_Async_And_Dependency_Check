@@ -1,19 +1,3 @@
-/**
- * ReportUsageProvider
- * ----------------------
- * OPTIONAL-tier provider for reporting metadata.
- *
- * In this org, Tooling SOAP doesn't support the Report / CustomReportType
- * sObjects, so report usage falls back to:
- *   1. native Apex SOQL on the Report sObject to discover accessible report ids
- *   2. Reports.ReportManager.describeReport(...) for per-report metadata
- *   3. scanning only the actual reportMetadata payload for object/field references
- *
- * Report Type analysis intentionally uses only ReportType metadata. Inferring
- * report-type dependencies from report describe payloads is too noisy because
- * describeReport includes fields that are merely available through the report
- * type, not necessarily used by a saved report.
- */
 public with sharing class ReportUsageProvider implements IMetadataUsageProvider {
     @TestVisible
     private static List<ReportDescriptor> testReportDescriptors;
@@ -193,7 +177,6 @@ public with sharing class ReportUsageProvider implements IMetadataUsageProvider 
                 String reportName = String.isBlank(reportRow.Name) ? reportRow.DeveloperName : reportRow.Name;
                 descriptors.add(new ReportDescriptor(reportName, metadataJson));
             } catch (Exception ex) {
-                // Skip reports the running user cannot describe.
                 continue;
             }
         }

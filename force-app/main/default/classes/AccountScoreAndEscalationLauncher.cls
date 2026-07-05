@@ -1,9 +1,3 @@
-/**
- * AccountScoreAndEscalationLauncher
- * ----------------------------
- * Entry point for kicking off Account score calculation and
- * escalation flag from another context (API Call/PE subscription/Flow/LWC etc).
- */
 public with sharing class AccountScoreAndEscalationLauncher {
 
     public static final Integer DEFAULT_BATCH_SCOPE_SIZE = 200;
@@ -25,9 +19,6 @@ public with sharing class AccountScoreAndEscalationLauncher {
         return Database.executeBatch(batch, batchScopeSize);
     }
 
-    /**
-     * Invocable variant for Flows taking in Id list as input
-     */
     @InvocableMethod(
         label='Launch Account Score And Escalation Refresh'
         description='Accepts Account Ids and kicks off async score recalculation and escalation flag evaluation.'

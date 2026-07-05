@@ -1,11 +1,3 @@
-/**
- * ReportTypeMetadataClient
- * ------------------------
- * Reads ReportType metadata through the Metadata SOAP API using the active
- * session. This provides a standalone source of truth for custom report type
- * definitions in orgs where MetadataComponentDependency doesn't emit
- * CustomReportType rows for field references.
- */
 public with sharing class ReportTypeMetadataClient {
 
     private static final String API_VERSION = '60.0';

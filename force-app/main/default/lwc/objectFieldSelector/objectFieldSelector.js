@@ -5,19 +5,15 @@ import getCategoryDefinitions from '@salesforce/apex/ObjectMetadataController.ge
 import analyzeFieldUsage from '@salesforce/apex/ObjectMetadataController.analyzeFieldUsage';
 
 export default class ObjectFieldSelector extends LightningElement {
-    // --- Object selection ---
     @track objectOptions = [];
     selectedObjectApiName;
 
-    // --- Field selection ---
     @track fieldOptions = [];
     @track selectedFieldApiNames = [];
 
-    // --- Category checklist (default vs optional, server-driven) ---
-    @track categoryOptions = []; // { categoryKey, label, defaultSelected, tier }
+    @track categoryOptions = [];
     selectedCategories = [];
 
-    // --- Results ---
     @track resultRows = [];
     @track groupedResults = [];
     @track categoryErrors = [];
@@ -55,10 +51,6 @@ export default class ObjectFieldSelector extends LightningElement {
                 ...category,
                 checked: category.defaultSelected
             }));
-            // Pre-select DEFAULT_ON tier categories - this is what gives
-            // the "flexible UX": fast, high-signal categories run
-            // automatically, while expensive/lower-priority ones (Reports,
-            // Workflow) stay opt-in.
             this.selectedCategories = this.categoryOptions
                 .filter((c) => c.defaultSelected)
                 .map((c) => c.categoryKey);
@@ -73,6 +65,7 @@ export default class ObjectFieldSelector extends LightningElement {
         this.fieldOptions = [];
         this.resultRows = [];
         this.groupedResults = [];
+        this.analyzedFieldApiNames = [];
         this.hasAnalyzed = false;
         this.loadFieldsForSelectedObject();
     }

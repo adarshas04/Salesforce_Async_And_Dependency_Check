@@ -1,25 +1,11 @@
-/**
- * AccountScoreAndEscalationService
- * ----------------------
- * Contains the business rules for:
- *   1. Recalculating Account.Score__c based on external signal data.
- *   2. Determining escalation eligibility (High Priority Account + an
- *      Opportunity that has been open > 45 days).
- *
- * Kept separate from the batch class (AccountScoreAndEscalationBatch)
- * so the rules can be unit tested in isolation and reused from other entry
- * points (triggers, invocable actions, LWC controllers, etc.)
- */
 public with sharing class AccountScoreAndEscalationService {
 
-    // Threshold for Opportunity's age in days
     public static final Integer ESCALATION_THRESHOLD_DAYS = 45;
     public static final String HIGH_PRIORITY_VALUE = 'High Priority';
 
     public Decimal calculateScore(Account acc, OpenOpportunitySummary oppSummary) {
         Decimal score = 0;
 
-        // Sample scoring criteria
         Integer openOppCount = oppSummary == null ? 0 : oppSummary.openOpportunityCount;
         Decimal openAmount = oppSummary == null ? 0 : oppSummary.openOpportunityAmount;
 
@@ -43,11 +29,6 @@ public with sharing class AccountScoreAndEscalationService {
         return oppSummary.oldestOpenOpportunityCreatedDate.date() <= cutoff;
     }
 
-    /**
-     * Bulk-safe helper: given a map of AccountId -> Account and
-     * AccountId -> summarized open Opportunity metrics, returns the
-     * Account updates needed for score recalculation and flagging.
-     */
     public ProcessResult process(Map<Id, Account> accountsById,
                                  Map<Id, OpenOpportunitySummary> oppSummaryByAccountId) {
         ProcessResult result = new ProcessResult();

@@ -1,13 +1,7 @@
-/**
- * AccountScoreAndEscalationBatch
- * ------------------------
- * Batchable entry point for high-volume Account scoring and escalation-flagging.
- */
 public with sharing class AccountScoreAndEscalationBatch implements Database.Batchable<sObject>, Database.Stateful {
 
     private Set<Id> accountIds;
 
-    // Stateful counters for the finish() summary.
     public Integer totalProcessed = 0;
     public Integer totalFlagged = 0;
     public Integer totalErrors = 0;
@@ -33,8 +27,7 @@ public with sharing class AccountScoreAndEscalationBatch implements Database.Bat
             AccountScoreAndEscalationService scoringService = new AccountScoreAndEscalationService();
             Map<Id, Account> accountsById = new Map<Id, Account>(scope);
 
-            // Aggregate metrics are enough for the current scoring + flagging rules,
-            // so we avoid loading full Opportunity record collections into heap.
+            // We only need rollups here, not full opp rows.
             Map<Id, AccountScoreAndEscalationService.OpenOpportunitySummary> oppSummaryByAccountId =
                 new Map<Id, AccountScoreAndEscalationService.OpenOpportunitySummary>();
             for (AggregateResult row : [

@@ -1,14 +1,3 @@
-/**
- * WorkflowUsageProvider
- * ---------------------
- * Best-effort provider for legacy Workflow Rules / Field Updates.
- *
- * In this org, WorkflowRule metadata is queryable through Tooling SOAP, but
- * MetadataComponentDependency does not emit WorkflowRule rows for field
- * criteria or field update targets. We therefore read WorkflowRule metadata
- * directly and correlate any FieldUpdate actions back to WorkflowFieldUpdate
- * metadata.
- */
 public with sharing class WorkflowUsageProvider implements IMetadataUsageProvider {
 
     public String getCategoryKey() {

@@ -1,16 +1,3 @@
-/**
- * ToolingDependencyUsageProvider
- * ---------------------------------
- * Handles dependency categories by:
- *   - querying Tooling API MetadataComponentDependency for categories that
- *     Salesforce exposes directly there (Apex, Flow, Validation Rules, Custom
- *     Field formulas/defaults, Layouts, Email Templates), then
- *   - using a targeted fallback only for categories that need a separate
- *     metadata scan path (currently FlexiPages).
- *
- * NOTE: MetadataComponentDependency requires Tooling API access and is
- * only available in orgs where dependency API is enabled.
- */
 public with sharing class ToolingDependencyUsageProvider implements IMetadataUsageProvider {
 
     private static final Set<String> QUERY_FIRST_CATEGORIES = new Set<String>{
@@ -19,8 +6,6 @@ public with sharing class ToolingDependencyUsageProvider implements IMetadataUsa
     @TestVisible private static List<Map<String, Object>> testFlexiPageRows;
     @TestVisible private static Map<String, Map<String, Object>> testFlexiPageDetailsById;
 
-    // Maps our category keys to the RefMetadataComponentType values
-    // returned by MetadataComponentDependency.
     private static final Map<String, Set<String>> CATEGORY_TO_COMPONENT_TYPES = new Map<String, Set<String>>{
         'APEX' => new Set<String>{ 'ApexClass', 'ApexTrigger' },
         'FLOW' => new Set<String>{ 'Flow' },
@@ -29,7 +14,7 @@ public with sharing class ToolingDependencyUsageProvider implements IMetadataUsa
         'LAYOUT' => new Set<String>{ 'Layout' },
         'FLEXIPAGE' => new Set<String>{ 'FlexiPage' },
         'EMAIL_TEMPLATE' => new Set<String>{ 'EmailTemplate' },
-        'WORKFLOW_PROCESS' => new Set<String>{ 'WorkflowRule', 'Flow' } // Process Builder persists as Flow metadata type
+        'WORKFLOW_PROCESS' => new Set<String>{ 'WorkflowRule', 'Flow' }
     };
 
     private final String categoryKey;
@@ -42,9 +27,6 @@ public with sharing class ToolingDependencyUsageProvider implements IMetadataUsa
         this.categoryKey = categoryKey;
     }
 
-    // getCategoryKey() is only meaningful for single-category providers;
-    // this provider answers for several, so the registry in
-    // FieldUsageAnalyzerService registers it explicitly under each key.
     public String getCategoryKey() {
         return categoryKey;
     }
