@@ -1,0 +1,189 @@
+<template>
+    <lightning-card title="Field Usage Analyzer" icon-name="standard:metrics">
+        <div class="slds-p-horizontal_medium slds-p-bottom_medium">
+
+            <!-- Object selection -->
+            <lightning-combobox
+                label="Object"
+                placeholder="Select an object"
+                options={objectOptions}
+                value={selectedObjectApiName}
+                onchange={handleObjectChange}
+            ></lightning-combobox>
+
+            <!-- Field multi-select -->
+            <template if:true={selectedObjectApiName}>
+                <div class="slds-m-top_medium">
+                    <lightning-dual-listbox
+                        name="fields"
+                        label="Fields"
+                        source-label="Available Fields"
+                        selected-label="Selected Fields"
+                        options={fieldOptions}
+                        value={selectedFieldApiNames}
+                        onchange={handleFieldSelectionChange}
+                    ></lightning-dual-listbox>
+                </div>
+            </template>
+
+            <!-- Dependency category checklist - default vs optional tiers -->
+            <template if:true={categoryOptions.length}>
+                <div class="slds-m-top_medium">
+                    <p class="slds-text-title_bold slds-m-bottom_x-small">Dependency Categories</p>
+                    <p class="slds-text-body_small slds-text-color_weak slds-m-bottom_small">
+                        Fast categories are pre-selected. Reports and legacy Workflow/Process
+                        Builder are optional since they require deeper scans.
+                    </p>
+                    <template for:each={categoryOptions} for:item="cat">
+                        <div key={cat.categoryKey} class="slds-form-element slds-m-bottom_x-small">
+                            <label class="slds-checkbox">
+                                <input
+                                    type="checkbox"
+                                    checked={cat.checked}
+                                    data-category-key={cat.categoryKey}
+                                    onchange={handleCategoryToggle}
+                                />
+                                <span class="slds-checkbox_faux"></span>
+                                <span class="slds-form-element__label">
+                                    {cat.label}
+                                    <span class="slds-text-body_small slds-text-color_weak"> ({cat.tier})</span>
+                                </span>
+                            </label>
+                        </div>
+                    </template>
+                </div>
+            </template>
+
+            <div class="slds-m-top_medium">
+                <lightning-button
+                    variant="brand"
+                    label="Analyze Field Usage"
+                    disabled={isAnalyzeDisabled}
+                    onclick={handleAnalyzeClick}
+                ></lightning-button>
+            </div>
+
+            <template if:true={isLoading}>
+                <section class="analysis-banner slds-m-top_medium" aria-live="polite">
+                    <div class="analysis-banner__top">
+                        <div>
+                            <p class="analysis-banner__eyebrow">Analysis In Progress</p>
+                            <h2 class="analysis-banner__title">{loadingStatusMessage}</h2>
+                        </div>
+                        <div class="analysis-pulse" aria-hidden="true">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                    </div>
+                    <div class="analysis-progress-track" aria-hidden="true">
+                        <div class="analysis-progress-bar"></div>
+                    </div>
+                    <p class="analysis-banner__meta">
+                        Scanning categories: {loadingCategorySummary}
+                    </p>
+                </section>
+            </template>
+
+            <!-- Results -->
+            <template if:true={hasResults}>
+                <div class="slds-m-top_large">
+                    <div class="results-hero slds-m-bottom_medium">
+                        <div>
+                            <p class="results-eyebrow">Dependency Map</p>
+                            <h2 class="results-title">{selectedFieldCountLabel}</h2>
+                            <p class="results-subtitle">
+                                Results are grouped by field first, then by dependency category.
+                            </p>
+                        </div>
+                        <div class="results-meta">
+                            <span class="summary-pill summary-pill--neutral">{selectedCategoryCountLabel}</span>
+                        </div>
+                    </div>
+
+                    <div class="results-insights slds-m-bottom_medium">
+                        <div class="results-insight-card">
+                            <p class="results-insight-label">Categories analyzed</p>
+                            <div class="results-pill-row">
+                                <template for:each={selectedCategoryPills} for:item="pill">
+                                    <span key={pill.id} class="summary-pill">{pill.label}</span>
+                                </template>
+                            </div>
+                        </div>
+
+                        <template if:true={emptyCategoryPills.length}>
+                            <div class="results-insight-card results-insight-card--muted">
+                                <p class="results-insight-label">No matches found in</p>
+                                <div class="results-pill-row">
+                                    <template for:each={emptyCategoryPills} for:item="pill">
+                                        <span key={pill.id} class="summary-pill summary-pill--muted">
+                                            {pill.label}
+                                        </span>
+                                    </template>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+
+                    <lightning-accordion class="field-accordion" allow-multiple-sections-open>
+                        <template for:each={groupedResults} for:item="fieldGroup">
+                            <lightning-accordion-section
+                                key={fieldGroup.id}
+                                name={fieldGroup.fieldApiName}
+                                label={fieldGroup.fieldApiName}
+                            >
+                                <div class="field-summary slds-m-bottom_medium">
+                                    <span class="summary-pill">{fieldGroup.summaryLabel}</span>
+                                </div>
+
+                                <div class="category-grid">
+                                    <template for:each={fieldGroup.categoryGroups} for:item="categoryGroup">
+                                        <article key={categoryGroup.id} class="category-card">
+                                            <div class="category-card__header">
+                                                <div>
+                                                    <p class="category-card__eyebrow">{categoryGroup.title}</p>
+                                                    <h3 class="category-card__count">
+                                                        {categoryGroup.totalDependencies} match(es)
+                                                    </h3>
+                                                </div>
+                                                <span class="component-pill">
+                                                    {categoryGroup.componentTypeSummary}
+                                                </span>
+                                            </div>
+
+                                            <div class="usage-list">
+                                                <template for:each={categoryGroup.usages} for:item="usage">
+                                                    <section key={usage.id} class="usage-row">
+                                                        <div class="usage-row__header">
+                                                            <p class="usage-row__title">{usage.componentName}</p>
+                                                            <span class="usage-row__meta">{usage.metaLabel}</span>
+                                                        </div>
+                                                        <p class="usage-row__context">{usage.context}</p>
+                                                    </section>
+                                                </template>
+                                            </div>
+                                        </article>
+                                    </template>
+                                </div>
+                            </lightning-accordion-section>
+                        </template>
+                    </lightning-accordion>
+                </div>
+            </template>
+
+            <template if:true={hasNoResults}>
+                <p class="slds-m-top_medium slds-text-color_weak">No usages found for the selected categories.</p>
+            </template>
+
+            <template if:true={categoryErrors.length}>
+                <div class="slds-m-top_medium">
+                    <template for:each={categoryErrors} for:item="err">
+                        <p key={err.category} class="slds-text-color_error">
+                            {err.category}: {err.message}
+                        </p>
+                    </template>
+                </div>
+            </template>
+        </div>
+    </lightning-card>
+</template>

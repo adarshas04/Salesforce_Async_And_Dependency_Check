@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Escalation_Flag__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Automatically checked when the Account is High Priority and has at least one open Opportunity older than 45 days.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Automatically checked when the Account is High Priority and has at least one open Opportunity older than 45 days.</inlineHelpText>
+    <label>Escalation Flag</label>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackHistory>true</trackHistory>
+    <type>Checkbox</type>
+</CustomField>
